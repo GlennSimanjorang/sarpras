@@ -1,19 +1,62 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client"
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import axios from "axios";
+import { z } from "zod";
+import { useState } from "react";
+
+
+const loginSchema = z.object({
+  username: z.string().min(3, "username minimal 3 karakter"),
+  password: z.string().min(3, "Password minimal 3 karakter"),
+});
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      loginSchema.parse(formData);
+      
+      const response = await axios.post(`${url}/api/auth/login`, formData, {
+        headers: { "Content-Type": "application/json" },
+      });      
+      window.location.href = "dashboard"
+    } catch (error) {
+      setIsLoading(false);
+      setError("Username atau password salah");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -24,47 +67,44 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
+              {error && <div className="text-red-500 text-sm">{error}</div>}
+
               <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="text">Username</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="username"
+                  type="text"
+                  placeholder="udin kasep"
                   required
+                  value={formData.username}
+                  onChange={handleChange}
                 />
               </div>
+
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                />
               </div>
+
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Processing..." : "Login"}
                 </Button>
               </div>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
-              </a>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
