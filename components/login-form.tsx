@@ -40,7 +40,7 @@ export function LoginForm({
     try {
       loginSchema.parse(formData);
       
-      const response = await axios.post(`${url}/api/auth/login`, formData, {
+      const response = await axios.post(`/api/login`, formData, {
         headers: { "Content-Type": "application/json" },
       });      
       window.location.href = "dashboard"
