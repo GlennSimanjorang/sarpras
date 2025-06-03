@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { z } from "zod";
 import { useState } from "react";
+import { setCookie } from "cookies-next";
 
 
 const loginSchema = z.object({
@@ -40,10 +41,22 @@ export function LoginForm({
     try {
       loginSchema.parse(formData);
       
-      const response = await axios.post(`/api/login`, formData, {
+      const response = await axios.post(`${url}/api/auth/login`, formData, {
         headers: { "Content-Type": "application/json" },
       });      
-      window.location.href = "dashboard"
+      const token = response.data.data.token;
+      if (token) {
+        setCookie("token", token, {
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/",
+          sameSite: "lax",
+        });
+        window.location.href = "dashboard";
+      } else {
+        setError("Login gagal: token tidak ditemukan.");
+        setIsLoading(false);
+      }
     } catch (error) {
       setIsLoading(false);
       setError("Username atau password salah");

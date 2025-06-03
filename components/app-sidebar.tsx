@@ -4,11 +4,9 @@ import * as React from "react"
 import {
   BookOpen,
   Bot,
-  Frame,
-  Map,
-  PieChart,
   Settings2,
   SquareTerminal,
+  Container,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -29,6 +27,11 @@ const data = {
     name: "Admin",
   },
   navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard/",
+      icon: Container,
+    },
     {
       title: "Categories",
       url: "/dashboard/categories",
