@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -34,9 +33,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import React from "react";
 
