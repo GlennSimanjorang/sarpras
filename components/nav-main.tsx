@@ -85,6 +85,7 @@ export function NavMain({
           }
         })}
       </SidebarMenu>
+      <SidebarGroupLabel>Laporan</SidebarGroupLabel>
     </SidebarGroup>
   );
 }
