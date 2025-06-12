@@ -15,27 +15,24 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { getCookie } from "cookies-next";
 
-export function CreateUser() {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+interface CreateUserProps {
+  onSuccess?: () => void; 
+}
+
+export default function CreateUser({ onSuccess }: CreateUserProps) {
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    
     if (!formData.username.trim() || !formData.password) {
       setError("Username and password are required");
       return;
@@ -47,25 +44,20 @@ export function CreateUser() {
     const url = process.env.NEXT_PUBLIC_API_URL;
 
     try {
-      const response = await axios.post(
-        `${url}/api/admin/users`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${url}/api/admin/users`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         setFormData({ username: "", password: "" });
-        setIsOpen(false);
-        alert("User created successfully!");
-      }
+        if (onSuccess) onSuccess(); 
+        setIsOpen(false); 
+      }      
     } catch (err: any) {
       console.error("Failed to create user:", err);
-
       let errorMessage = "Failed to create user";
       if (err.response) {
         errorMessage =
@@ -73,7 +65,6 @@ export function CreateUser() {
       } else if (err.request) {
         errorMessage = "No response from server";
       }
-
       setError(errorMessage);
     } finally {
       setIsLoading(false);

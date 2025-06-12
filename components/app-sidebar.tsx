@@ -7,7 +7,7 @@ import {
   Settings2,
   SquareTerminal,
   Container,
-} from "lucide-react"
+  UserRound} from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -44,13 +44,18 @@ const data = {
     },
     {
       title: "Borrows",
-      url: "#",
+      url: "/dashboard/borrowing",
       icon: BookOpen,
     },
     {
       title: "Returns",
-      url: "#",
+      url: "/dashboard/return",
       icon: Settings2,
+    },
+    {
+      title: "Users",
+      url: "/dashboard/users",
+      icon: UserRound,
     },
   ],
 }

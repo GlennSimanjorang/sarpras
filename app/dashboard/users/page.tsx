@@ -16,32 +16,25 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { columns as rawColumns } from "./columns";
+import { columns } from "./colums";
 import { DataTable } from "./data-table";
 import axios from "axios";
 import { getCookie } from "cookies-next";
-import { z } from "zod";
 import { useEffect, useState } from "react";
-import ItemsCreate from "@/components/items-create";
+import UserCreate from "@/components/user-crate";
 
-
-export type Items = {
+export type User = {
   id: number;
-  sku: string;
-  name: string;
-  image_url: string;
-  stock: string;
-  categories: {
-    id: number;
-    name: string;
-    slug: string;
-  }[];
+  username: string;
+  last_login_at: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
-async function getItems(): Promise<Items[]> {
+async function getUsers(): Promise<User[]> {
   const token = getCookie("token");
-  const url = process.env.NEXT_PUBLIC_API_URL
-  const res = await axios.get(`${url}/api/admin/items`, {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  const res = await axios.get(`${url}/api/admin/users`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -51,15 +44,16 @@ async function getItems(): Promise<Items[]> {
   return res.data.data;
 }
 
-export default function Categories() {
-  const [data, setData] = useState<Items[]>([]);
+export default function UsersPage() {
+  const [data, setData] = useState<User[]>([]);
   const refreshData = () => {
-    getItems().then(setData).catch(console.error);
+    getUsers().then(setData).catch(console.error);
   };
+
   useEffect(() => {
     refreshData();
   }, []);
-  const columns = rawColumns(refreshData);
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -75,16 +69,16 @@ export default function Categories() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Items</BreadcrumbPage>
+                  <BreadcrumbPage>Users</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <ItemsCreate refreshData={refreshData} />
+          <UserCreate onSuccess={refreshData} />
         </header>
         <div className="flex-1 p-6">
           <div className="container mx-auto">
-            <DataTable columns={columns} data={data} />
+            <DataTable columns={columns(refreshData)} data={data} />
           </div>
         </div>
       </SidebarInset>

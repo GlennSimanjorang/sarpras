@@ -20,28 +20,41 @@ import { columns as rawColumns } from "./columns";
 import { DataTable } from "./data-table";
 import axios from "axios";
 import { getCookie } from "cookies-next";
-import { z } from "zod";
-import { useEffect, useState } from "react";
-import ItemsCreate from "@/components/items-create";
 
-
-export type Items = {
+// Perbarui tipe Borrowing sesuai response API
+export type Borrowing = {
   id: number;
-  sku: string;
-  name: string;
-  image_url: string;
-  stock: string;
-  categories: {
+  item_id: number;
+  user_id: number;
+  quantity: number;
+  status: string;
+  approved_by: number | null;
+  approved_at: string | null;
+  due_date: string;
+  created_at: string;
+  updated_at: string;
+  user: {
     id: number;
+    username: string;
+    last_login_at: string;
+    created_at: string;
+    updated_at: string;
+  };
+  item: {
+    id: number;
+    sku: string;
     name: string;
-    slug: string;
-  }[];
+    image_url: string;
+    stock: number;
+    created_at: string;
+    updated_at: string;
+  };
 };
 
-async function getItems(): Promise<Items[]> {
+async function getBorrowing(): Promise<Borrowing[]> {
   const token = getCookie("token");
-  const url = process.env.NEXT_PUBLIC_API_URL
-  const res = await axios.get(`${url}/api/admin/items`, {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  const res = await axios.get(`${url}/api/admin/borrows`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -51,15 +64,20 @@ async function getItems(): Promise<Items[]> {
   return res.data.data;
 }
 
-export default function Categories() {
-  const [data, setData] = useState<Items[]>([]);
+export default function Borrowing() {
+  const [data, setData] = React.useState<Borrowing[]>([]);
+  const [error, setError] = React.useState<string | null>(null);
+
   const refreshData = () => {
-    getItems().then(setData).catch(console.error);
+    getBorrowing().then(setData).catch(console.error);
   };
-  useEffect(() => {
+
+  React.useEffect(() => {
     refreshData();
   }, []);
+
   const columns = rawColumns(refreshData);
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -74,14 +92,15 @@ export default function Categories() {
                   <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
+                {/* Ubah breadcrumb */}
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Items</BreadcrumbPage>
+                  <BreadcrumbPage>Borrowings</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <ItemsCreate refreshData={refreshData} />
         </header>
+
         <div className="flex-1 p-6">
           <div className="container mx-auto">
             <DataTable columns={columns} data={data} />

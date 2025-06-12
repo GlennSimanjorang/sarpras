@@ -16,32 +16,53 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { columns as rawColumns } from "./columns";
+import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import axios from "axios";
 import { getCookie } from "cookies-next";
-import { z } from "zod";
-import { useEffect, useState } from "react";
-import ItemsCreate from "@/components/items-create";
 
-
-export type Items = {
+// Tipe data untuk Returned Item
+export type ReturnItem = {
   id: number;
-  sku: string;
-  name: string;
-  image_url: string;
-  stock: string;
-  categories: {
+  borrow_id: number;
+  returned_quantity: number;
+  handled_by: number | null;
+  created_at: string;
+  updated_at: string;
+  borrowing: {
     id: number;
-    name: string;
-    slug: string;
-  }[];
+    item_id: number;
+    user_id: number;
+    quantity: number;
+    status: string;
+    approved_by: number | null;
+    approved_at: string | null;
+    due_date: string;
+    created_at: string;
+    updated_at: string;
+    item: {
+      id: number;
+      sku: string;
+      name: string;
+      image_url: string;
+      stock: number;
+      created_at: string;
+      updated_at: string;
+    };
+    user: {
+      id: number;
+      username: string;
+      last_login_at: string;
+      created_at: string;
+      updated_at: string;
+    };
+  };
 };
 
-async function getItems(): Promise<Items[]> {
+async function getReturnedItems(): Promise<ReturnItem[]> {
   const token = getCookie("token");
-  const url = process.env.NEXT_PUBLIC_API_URL
-  const res = await axios.get(`${url}/api/admin/items`, {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  const res = await axios.get(`${url}/api/admin/returns`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -51,15 +72,23 @@ async function getItems(): Promise<Items[]> {
   return res.data.data;
 }
 
-export default function Categories() {
-  const [data, setData] = useState<Items[]>([]);
+export default function ReturnsPage() {
+  const [data, setData] = React.useState<ReturnItem[]>([]);
+  const [error, setError] = React.useState<string | null>(null);
+
   const refreshData = () => {
-    getItems().then(setData).catch(console.error);
+    getReturnedItems()
+      .then(setData)
+      .catch((error) => {
+        console.error("Error fetching returns:", error);
+        setError("Failed to fetch returns data");
+      });
   };
-  useEffect(() => {
+
+  React.useEffect(() => {
     refreshData();
   }, []);
-  const columns = rawColumns(refreshData);
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -75,16 +104,20 @@ export default function Categories() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Items</BreadcrumbPage>
+                  <BreadcrumbPage>Returns</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <ItemsCreate refreshData={refreshData} />
         </header>
+
         <div className="flex-1 p-6">
           <div className="container mx-auto">
-            <DataTable columns={columns} data={data} />
+            {error ? (
+              <div className="text-red-500">{error}</div>
+            ) : (
+              <DataTable columns={columns(refreshData)} data={data} />
+            )}
           </div>
         </div>
       </SidebarInset>
