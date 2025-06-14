@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getCookie } from "cookies-next";
 import axios from "axios";
 import { Items } from "./page";
@@ -54,13 +54,78 @@ export const columns = (refreshData: () => void): ColumnDef<Items>[] => [
     accessorKey: "image_url",
     header: "Image",
     cell: ({ row }) => {
-      const url = row.getValue("image_url") as string;
+      const [isUploading, setIsUploading] = useState(false);
+      const fileInputRef = useRef<HTMLInputElement>(null);
+      const refresh = refreshData; // Capture refreshData from closure
+
+      const handleImageClick = () => {
+        fileInputRef.current?.click();
+      };
+
+      const handleFileChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+      ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const token = getCookie("token");
+        const url = process.env.NEXT_PUBLIC_API_URL;
+        const sku = row.original.sku; // Use SKU from item data
+
+        try {
+          await axios.post(
+            `${url}/api/admin/items/${sku}/change-image`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+          refresh(); // Refresh table data
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image. Please try again.");
+        } finally {
+          setIsUploading(false);
+          // Reset input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+        }
+      };
+
+      const imageUrl = row.getValue("image_url") as string;
+
       return (
-        <img
-          src={url}
-          alt="Item image"
-          className="h-16 w-16 object-cover rounded-md"
-        />
+        <div className="relative">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+            disabled={isUploading}
+          />
+          <img
+            src={imageUrl}
+            alt="Item image"
+            className={`h-16 w-16 object-cover rounded-md ${
+              isUploading ? "opacity-50" : "cursor-pointer"
+            }`}
+            onClick={handleImageClick}
+          />
+          {isUploading && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
+              <span className="text-white text-xs">Uploading...</span>
+            </div>
+          )}
+        </div>
       );
     },
   },
@@ -298,3 +363,4 @@ export const columns = (refreshData: () => void): ColumnDef<Items>[] => [
     },
   },
 ];
+

@@ -33,8 +33,6 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
 } from "@/components/ui/pagination";
 import React from "react";
 
@@ -186,6 +184,22 @@ export function DataTable<TData, TValue>({
                 Previous
               </Button>
             </PaginationItem>
+
+            {Array.from({ length: table.getPageCount() }, (_, i) => (
+              <PaginationItem key={i}>
+                <Button
+                  variant={
+                    table.getState().pagination.pageIndex === i
+                      ? "default"
+                      : "outline"
+                  }
+                  size="sm"
+                  onClick={() => table.setPageIndex(i)}
+                >
+                  {i + 1}
+                </Button>
+              </PaginationItem>
+            ))}
 
             <PaginationItem>
               <Button

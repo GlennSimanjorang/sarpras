@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   BadgeCheck,
@@ -7,13 +7,8 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
-} from "lucide-react"
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,22 +17,42 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import axios from "axios";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string
-  }
+    name: string;
+  };
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
+  const router = useRouter();
+
+  const onLogout = async () => {
+    try {
+      const token = getCookie("token"); // ganti dengan nama cookie yang sesuai
+      await axios.get("http://127.0.0.1:8000/api/auth/logout", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true, // penting agar cookie dikirim ke server
+      });
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -74,13 +89,13 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
+            <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

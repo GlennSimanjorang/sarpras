@@ -22,7 +22,7 @@ import axios from "axios";
 import { getCookie } from "cookies-next";
 import Borrow from "@/components/borrowing-data";
 
-// Perbarui tipe Borrowing sesuai response API
+
 export type Borrowing = {
   id: number;
   item_id: number;
