@@ -20,6 +20,7 @@ import { columns as rawColumns } from "./columns";
 import { DataTable } from "./data-table";
 import axios from "axios";
 import { getCookie } from "cookies-next";
+import Borrow from "@/components/borrowing-data";
 
 // Perbarui tipe Borrowing sesuai response API
 export type Borrowing = {
@@ -98,6 +99,9 @@ export default function Borrowing() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="">
+            <Borrow />
           </div>
         </header>
 

@@ -20,10 +20,9 @@ import { columns as rawColumns } from "./columns";
 import { DataTable } from "./data-table";
 import axios from "axios";
 import { getCookie } from "cookies-next";
-import { z } from "zod";
 import { useEffect, useState } from "react";
 import ItemsCreate from "@/components/items-create";
-
+import { ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 
 export type Items = {
   id: number;

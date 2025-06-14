@@ -74,8 +74,8 @@ export default function CreateUser({ onSuccess }: CreateUserProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setIsOpen(true)}>
-          Create User
+        <Button  onClick={() => setIsOpen(true)}>
+          Create User +
         </Button>
       </DialogTrigger>
 

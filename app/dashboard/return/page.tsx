@@ -20,6 +20,7 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import axios from "axios";
 import { getCookie } from "cookies-next";
+import Returning from "@/components/returning-data";
 
 // Tipe data untuk Returned Item
 export type ReturnItem = {
@@ -108,6 +109,9 @@ export default function ReturnsPage() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="">
+            <Returning  />
           </div>
         </header>
 
